@@ -1,73 +1,75 @@
-# Панелька
+# Panelka
 
-Браузерная игра на реакцию. Башенный кран возит этажи панельного дома, а вы одним нажатием ставите их друг на друга. Чем ровнее, тем выше дом.
+[Русская версия](README.ru.md)
 
-*A one-button browser game: a tower crane carries the floors of a panel apartment block, and you stack them as straight as you can.*
+A one-button browser game about reaction. A tower crane carries the floors of a panel apartment block, and you drop each one onto the stack with a single tap. The straighter you build, the taller the building gets.
 
-**[Играть в браузере](https://posoxai.github.io/PanelHouseBuildGame/)**
+A panelka is the everyday Russian word for a prefabricated panel apartment block.
+
+**[Play in the browser](https://posoxai.github.io/PanelHouseBuildGame/)**
 
 <p>
-  <img src="screenshots/day.png" width="300" alt="Панелька днём: дом в десять этажей, кран подвозит следующий этаж">
-  <img src="screenshots/night.png" width="300" alt="Та же стройка в тёмной теме: ночь, в окнах горит свет">
+  <img src="screenshots/day.png" width="300" alt="Panelka by day with the Russian interface: a ten-floor building and the crane bringing the next floor">
+  <img src="screenshots/night.png" width="300" alt="The same site in the dark theme with the English interface: night, with lit windows">
 </p>
 
-Слева светлая тема, справа тёмная.
+Left: the light theme with the Russian interface. Right: the dark theme with the English one.
 
-## Как играть
+## How to play
 
-Нажмите на поле или пробел (Enter тоже работает), когда этаж окажется над домом.
+Tap the site or press Space (Enter works too) when the floor is over the building.
 
-- Всё, что свисает с дома, срезается, и следующий этаж становится уже.
-- Этаж, поставленный мимо дома, заканчивает стройку.
-- Этаж считается ровным, если он встал почти точно на предыдущий.
+- Anything that overhangs the building is cut off, and the next floor is that much narrower.
+- A floor dropped beside the building ends the game.
+- A floor counts as straight when it lands almost exactly on the one below.
 
-## Правила скорости и ширины
+## Speed and width
 
-- Кран ускоряется на одну ступень каждые три поставленных этажа. Текущая ступень показана под счётчиком этажей.
-- Три ровных этажа подряд возвращают часть ширины. Каждый следующий ровный этаж в серии возвращает ещё немного, пока дом не вернётся к исходной ширине.
-- Если до этой серии был срезан кусок, третий ровный этаж ещё и сбрасывает скорость на одну ступень. Сброс срабатывает один раз на каждый срез.
-- Когда сброс совпадает с плановым ускорением, они гасят друг друга, и скорость остаётся прежней.
+- The crane speeds up one step for every three floors placed. The current step is shown under the floor counter.
+- Three straight floors in a row win back some width. Each further straight floor in the run wins back a little more, until the building is back to its starting width.
+- If a piece was cut off before that run, the third straight floor also takes the speed down one step. This happens once per cut.
+- When that drop falls on a scheduled speed-up, the two cancel out and the speed stays the same.
 
-## Звания
+## Ranks
 
-Сданный дом получает звание по числу этажей.
+A finished building gets a rank by its number of floors.
 
-| Этажей | Звание |
+| Floors | Rank |
 | --- | --- |
-| 0 | Котлован |
-| 1–4 | Недострой |
-| 5–8 | Хрущёвка |
-| 9–11 | Девятиэтажка |
-| 12–15 | Двенадцатиэтажка |
-| 16–24 | Шестнадцатиэтажка |
-| 25–39 | Высотка |
-| 40 и больше | Небоскрёб |
+| 0 | Foundation pit |
+| 1–4 | Unfinished |
+| 5–8 | Khrushchyovka |
+| 9–11 | Nine-storey block |
+| 12–15 | Twelve-storey block |
+| 16–24 | Sixteen-storey block |
+| 25–39 | High-rise |
+| 40 and more | Skyscraper |
 
-Высота этажа в игре 2,7 м, поэтому рядом со счётом показана высота дома в метрах.
+The ranks are the everyday Russian names for standard apartment blocks. A khrushchyovka is the low-rise type built in the Khrushchev years, usually five storeys.
 
-## Язык
+A floor in the game is 2.7 m tall, so the building's height in metres is shown next to the score.
 
-Интерфейс на русском и английском. Русский включается сам, если он есть в списке языков браузера, иначе игра открывается на английском. Переключатель RU/EN запоминает выбор.
+## Language
 
-*The interface is in Russian and English. It opens in Russian when Russian is among the browser's languages and in English otherwise; the RU/EN switch remembers your choice.*
+The interface is in English and Russian. It opens in Russian when Russian is among the browser's languages and in English otherwise. The RU/EN switch remembers your choice.
 
-## Как запустить
+## How to run
 
-Вся игра лежит в одном файле `index.html`. Сборка и зависимости не нужны.
+The whole game is one file, `index.html`. There is no build step and there are no dependencies.
 
-- Локально: откройте `index.html` в браузере.
-- По ссылке: игра опубликована через GitHub Pages по адресу https://posoxai.github.io/PanelHouseBuildGame/. Каждый коммит в `main` обновляет её автоматически.
+- Locally: open `index.html` in a browser.
+- Online: the game is published with GitHub Pages at https://posoxai.github.io/PanelHouseBuildGame/. Every commit to `main` updates it automatically.
 
-Шрифты загружаются с Google Fonts. Без сети игра работает на системных шрифтах.
+Fonts load from Google Fonts. Without a network the game falls back to system fonts.
 
-Рекорд и настройка звука хранятся в браузере игрока. Светлая тема рисует дом днём, тёмная — ночью, с горящими окнами.
+The best score and the sound setting are kept in the player's browser. The light theme draws the building by day and the dark theme by night, with lit windows.
 
-## Авторство
+## Credits
 
-Игру придумал, нарисовал и написал Claude, ИИ-ассистент компании Anthropic: механику, графику на canvas, звук и оформление страницы.
+The game was designed, drawn and written by Claude, the AI assistant made by Anthropic: the mechanics, the canvas graphics, the sound and the page design.
 
-Идея сделать браузерную игру и правила скорости (ступени каждые три этажа и сброс после трёх ровных этажей) принадлежат posoxAI.
+The idea of making a browser game and the speed rules (a step every three floors, and the drop after three straight floors) came from posoxAI.
 
-## Лицензия
+## License
 
-MIT. Полный текст в файле [LICENSE](LICENSE).
+MIT. The full text is in [LICENSE](LICENSE).
