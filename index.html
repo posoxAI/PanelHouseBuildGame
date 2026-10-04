@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Панелька</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Russo+One&display=swap">
+<style>
+  /* Layout: one tall construction site in a single column; the floor counter is the only loud element. */
+  :root {
+    --bg: #E9EEF0;
+    --ink: #18252E;
+    --muted: #566672;
+    --line: #C3CED5;
+    --card: #F7F9F9;
+    --accent: #1D5C7A;
+    --on-accent: #FFFFFF;
+    --sky-top: #A9CBE0;
+    --sky-bottom: #E6EEEA;
+    --panel: #D4D1C7;
+    --panel-edge: #A19E93;
+    --glass: #56788D;
+    --glass-lit: #F3F6F2;
+    --plinth: #7B7A74;
+    --ground: #8FA08A;
+    --far: #B7C8D2;
+    --crane: #D9900F;
+    --cloud: rgba(255, 255, 255, 0.78);
+    --star: rgba(255, 255, 255, 0);
+    --lit-ratio: 0.14;
+    --display: "Russo One", "Arial Black", "Segoe UI", sans-serif;
+    --body: "Golos Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1720;
+      --ink: #E8EDF0;
+      --muted: #93A2AD;
+      --line: #263440;
+      --card: #17222D;
+      --accent: #F5C65B;
+      --on-accent: #1A1405;
+      --sky-top: #0B1524;
+      --sky-bottom: #26394E;
+      --panel: #5A6068;
+      --panel-edge: #3A3F46;
+      --glass: #1E2831;
+      --glass-lit: #F5C65B;
+      --plinth: #33383E;
+      --ground: #1B2A26;
+      --far: #18252F;
+      --crane: #E5A52A;
+      --cloud: rgba(255, 255, 255, 0.05);
+      --star: rgba(255, 255, 255, 0.9);
+      --lit-ratio: 0.5;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1720;
+    --ink: #E8EDF0;
+    --muted: #93A2AD;
+    --line: #263440;
+    --card: #17222D;
+    --accent: #F5C65B;
+    --on-accent: #1A1405;
+    --sky-top: #0B1524;
+    --sky-bottom: #26394E;
+    --panel: #5A6068;
+    --panel-edge: #3A3F46;
+    --glass: #1E2831;
+    --glass-lit: #F5C65B;
+    --plinth: #33383E;
+    --ground: #1B2A26;
+    --far: #18252F;
+    --crane: #E5A52A;
+    --cloud: rgba(255, 255, 255, 0.05);
+    --star: rgba(255, 255, 255, 0.9);
+    --lit-ratio: 0.5;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.45;
+    display: flex;
+    flex-direction: column;
+  }
+  .app {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 480px;
+    margin-inline: auto;
+    padding-inline: 16px;
+    padding-block: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0.01em;
+  }
+  .bar-side {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .bar-side b { color: var(--ink); font-weight: 600; }
+  .ghost {
+    font: inherit;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 3px 9px;
+    cursor: pointer;
+  }
+  .ghost:hover { color: var(--ink); }
+
+  .stage {
+    position: relative;
+    flex: 1;
+    min-height: 300px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .stage canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .count {
+    position: absolute;
+    top: 34px;
+    left: 14px;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .count-n {
+    font-family: var(--display);
+    font-size: 64px;
+    line-height: 0.95;
+    font-variant-numeric: tabular-nums;
+  }
+  .count-l {
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .hint {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    margin: 0;
+    text-align: center;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 7px 10px;
+    pointer-events: none;
+  }
+  .over {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(300px, calc(100% - 32px));
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: default;
+  }
+  .over h2 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+  .over p { margin: 0; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .over p.rank { color: var(--ink); font-weight: 600; }
+  .primary {
+    margin-top: 10px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--on-accent);
+    background: var(--accent);
+    border: 0;
+    border-radius: 4px;
+    padding: 10px 14px;
+    cursor: pointer;
+  }
+  .primary:hover { filter: brightness(1.08); }
+  button:focus-visible, .stage:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .note { margin: 0; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <h1>Панелька</h1>
+    <div class="bar-side">
+      <span>Рекорд <b id="best">0</b></span>
+      <button class="ghost" id="sound" type="button" aria-pressed="true">Звук: вкл</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage" tabindex="0" role="button" aria-label="Стройплощадка. Нажмите, чтобы поставить этаж">
+    <canvas id="cv"></canvas>
+    <div class="count" aria-live="polite">
+      <span class="count-n" id="floors">0</span>
+      <span class="count-l" id="floorsLabel">этажей · 0,0 м</span>
+      <span class="count-l" id="speedLabel">скорость 1</span>
+    </div>
+    <p class="hint" id="hint">Нажмите на поле или пробел, когда этаж окажется над домом</p>
+    <div class="over" id="over" hidden>
+      <h2 id="overTitle">Дом сдан</h2>
+      <p class="rank" id="overRank"></p>
+      <p id="overStats"></p>
+      <button class="primary" id="again" type="button">Строить заново</button>
+    </div>
+  </div>
+
+  <p class="note">Всё, что свисает с дома, срезается. Каждые три этажа кран ускоряется. Три ровных этажа подряд возвращают часть ширины, а после срезанного куска ещё и сбрасывают скорость на ступень. Высота этажа 2,7 м.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var W = 360, BH = 30, BASE_W = 190, GROUND = 64, PITCH = 20, PERFECT = 4;
+
+  var stage = document.getElementById('stage');
+  var cv = document.getElementById('cv');
+  var ctx = cv.getContext('2d');
+  var elFloors = document.getElementById('floors');
+  var elLabel = document.getElementById('floorsLabel');
+  var elSpeed = document.getElementById('speedLabel');
+  var elBest = document.getElementById('best');
+  var elHint = document.getElementById('hint');
+  var elOver = document.getElementById('over');
+  var elOverTitle = document.getElementById('overTitle');
+  var elOverRank = document.getElementById('overRank');
+  var elOverStats = document.getElementById('overStats');
+  var btnAgain = document.getElementById('again');
+  var btnSound = document.getElementById('sound');
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- theme tokens for the canvas ---------- */
+  var T = {};
+  function readTokens() {
+    var cs = getComputedStyle(document.documentElement);
+    ['sky-top', 'sky-bottom', 'panel', 'panel-edge', 'glass', 'glass-lit', 'plinth',
+     'ground', 'far', 'crane', 'ink', 'cloud', 'star'].forEach(function (k) {
+      T[k] = cs.getPropertyValue('--' + k).trim();
+    });
+    T.lit = parseFloat(cs.getPropertyValue('--lit-ratio')) || 0.2;
+  }
+  readTokens();
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', readTokens);
+  }
+  new MutationObserver(readTokens).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  /* ---------- storage (optional) ---------- */
+  function load(key, fallback) {
+    try { var v = localStorage.getItem(key); return v === null ? fallback : v; } catch (e) { return fallback; }
+  }
+  function save(key, value) {
+    try { localStorage.setItem(key, String(value)); } catch (e) { /* storage is optional */ }
+  }
+
+  /* ---------- sound ---------- */
+  var actx = null;
+  var soundOn = load('panelka-sound', '1') === '1';
+  function paintSound() {
+    btnSound.textContent = soundOn ? 'Звук: вкл' : 'Звук: выкл';
+    btnSound.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  }
+  paintSound();
+  function tone(freq, dur, type, gain, slideTo) {
+    if (!soundOn) return;
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      actx = actx || new AC();
+      if (actx.state === 'suspended') actx.resume();
+      var t = actx.currentTime;
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(gain, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t); o.stop(t + dur + 0.02);
+    } catch (e) { /* sound is optional */ }
+  }
+
+  /* ---------- state ---------- */
+  var blocks = [];      // placed floors, index 0 is the ground floor
+  var cur = null;       // floor hanging from the crane
+  var debris = [];
+  var floaters = [];
+  var state = 'play';   // 'play' | 'over'
+  var streak = 0;
+  var relief = 0;        // speed steps taken back by clean runs
+  var lostPending = false; // a piece was cut off and not yet made up for
+  var best = parseInt(load('panelka-best', '0'), 10) || 0;
+  var camY = 0, shake = 0, overAt = 0, started = false;
+
+  var viewH = 560, dpr = 1, scale = 1;
+
+  function plural(n) {
+    var a = n % 10, b = n % 100;
+    if (a === 1 && b !== 11) return 'этаж';
+    if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return 'этажа';
+    return 'этажей';
+  }
+  function metres(n) {
+    return (n * 2.7).toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  }
+  function rank(n) {
+    if (n === 0) return 'Котлован';
+    if (n < 5) return 'Недострой';
+    if (n < 9) return 'Хрущёвка';
+    if (n < 12) return 'Девятиэтажка';
+    if (n < 16) return 'Двенадцатиэтажка';
+    if (n < 25) return 'Шестнадцатиэтажка';
+    if (n < 40) return 'Высотка';
+    return 'Небоскрёб';
+  }
+  function score() { return blocks.length - 1; }
+  // one speed step per three floors, minus the steps earned back
+  function speedLevel() { return Math.max(0, Math.floor(score() / 3) - relief); }
+
+  function paintHud() {
+    var n = score();
+    elFloors.textContent = n;
+    elLabel.textContent = plural(n) + ' · ' + metres(n) + ' м';
+    elBest.textContent = best;
+    elSpeed.textContent = 'скорость ' + (speedLevel() + 1);
+  }
+
+  function spawn() {
+    var top = blocks[blocks.length - 1];
+    var n = blocks.length;
+    var w = top.w;
+    var minX = 6, maxX = W - 6 - w;
+    var fromLeft = n % 2 === 1;
+    cur = {
+      x: fromLeft ? minX : maxX,
+      w: w,
+      dir: fromLeft ? 1 : -1,
+      speed: Math.min(80 + speedLevel() * 15, 300)
+    };
+  }
+
+  function reset() {
+    blocks = [{ x: (W - BASE_W) / 2, w: BASE_W }];
+    debris = []; floaters = [];
+    streak = 0; relief = 0; lostPending = false; state = 'play'; shake = 0;
+    elOver.hidden = true;
+    spawn();
+    paintHud();
+  }
+
+  function finish() {
+    state = 'over';
+    overAt = performance.now();
+    var n = score();
+    var record = n > best;
+    if (record) { best = n; save('panelka-best', best); }
+    elOverTitle.textContent = n === 0 ? 'Мимо фундамента' : 'Дом сдан';
+    elOverRank.textContent = rank(n) + (record && n > 0 ? ' · новый рекорд' : '');
+    elOverStats.textContent = n + ' ' + plural(n) + ' · ' + metres(n) + ' м';
+    elOver.hidden = false;
+    elHint.hidden = true;
+    paintHud();
+    tone(220, 0.5, 'sawtooth', 0.09, 70);
+    if (!reduceMotion) shake = 9;
+  }
+
+  function drop() {
+    if (state !== 'play' || !cur) return;
+    if (!started) { started = true; elHint.hidden = true; }
+    var top = blocks[blocks.length - 1];
+    var level = blocks.length;
+    var y = level * BH;
+    var left = Math.max(cur.x, top.x);
+    var right = Math.min(cur.x + cur.w, top.x + top.w);
+    var ov = right - left;
+
+    if (ov <= 0) {
+      debris.push({ x: cur.x, y: y + 6, w: cur.w, vx: cur.dir * 40, vy: 0, rot: 0, vr: cur.dir * 1.6 });
+      cur = null;
+      finish();
+      return;
+    }
+
+    if (Math.abs(cur.x - top.x) <= PERFECT) {
+      streak++;
+      var nx = top.x, nw = top.w;
+      if (streak >= 3 && nw < BASE_W) {
+        var grown = Math.min(BASE_W, nw + 10);
+        nx = Math.max(6, Math.min(W - 6 - grown, nx - (grown - nw) / 2));
+        nw = grown;
+      }
+      var before = speedLevel();
+      blocks.push({ x: nx, w: nw });
+      var slower = false;
+      if (streak === 3 && lostPending) {
+        // three clean floors after a cut: step the crane speed back once
+        lostPending = false;
+        if (speedLevel() > 0) { relief++; slower = true; }
+      }
+      var mark = streak > 1 ? 'Ровно ×' + streak : 'Ровно';
+      if (slower) mark += speedLevel() < before ? ' · кран медленнее' : ' · кран не ускорился';
+      floaters.push({ text: mark, x: nx + nw / 2, y: y + BH + 10, t: 0 });
+      tone(330 * Math.pow(2, Math.min(streak, 12) / 12), 0.22, 'triangle', 0.11);
+    } else {
+      streak = 0;
+      lostPending = true;
+      var cutW = cur.w - ov;
+      var onLeft = cur.x < top.x;
+      debris.push({
+        x: onLeft ? cur.x : right, y: y, w: cutW,
+        vx: (onLeft ? -1 : 1) * 30, vy: 0, rot: 0, vr: (onLeft ? -1 : 1) * 2.2
+      });
+      blocks.push({ x: left, w: ov });
+      tone(150, 0.16, 'square', 0.06, 90);
+    }
+    paintHud();
+    spawn();
+  }
+
+  function action() {
+    if (state === 'play') { drop(); return; }
+    if (performance.now() - overAt > 500) reset();
+  }
+
+  /* ---------- input ---------- */
+  stage.addEventListener('pointerdown', function (e) {
+    if (e.target.closest('.over')) return;
+    e.preventDefault();
+    stage.focus({ preventScroll: true });
+    action();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.code !== 'Space' && e.code !== 'Enter') return;
+    if (e.target.closest && e.target.closest('button')) return;
+    e.preventDefault();
+    if (e.repeat) return;
+    action();
+  });
+  btnAgain.addEventListener('click', function () { reset(); stage.focus({ preventScroll: true }); });
+  btnSound.addEventListener('click', function () {
+    soundOn = !soundOn; save('panelka-sound', soundOn ? '1' : '0'); paintSound();
+    if (soundOn) tone(440, 0.12, 'triangle', 0.08);
+  });
+
+  /* ---------- sizing ---------- */
+  function resize() {
+    var r = stage.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    cv.width = Math.round(r.width * dpr);
+    cv.height = Math.round(r.height * dpr);
+    scale = r.width / W;
+    viewH = r.height / scale;
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  window.addEventListener('resize', resize);
+  resize();
+
+  /* ---------- drawing ---------- */
+  function hash(i, k) {
+    var h = (Math.imul(i + 11, 73856093) ^ Math.imul(k + 7, 19349663)) >>> 0;
+    return (h % 1000) / 1000;
+  }
+  function sy(worldY) { return viewH - GROUND - (worldY - camY); }
+
+  function drawFloor(x, w, level, topY) {
+    ctx.fillStyle = level === 0 ? T.plinth : T.panel;
+    ctx.fillRect(x, topY, w, BH);
+    // floor slab and side edges
+    ctx.fillStyle = T['panel-edge'];
+    ctx.fillRect(x, topY + BH - 3, w, 3);
+    ctx.fillRect(x, topY, 1, BH);
+    ctx.fillRect(x + w - 1, topY, 1, BH);
+    // vertical panel seams on a fixed world grid, so they line up between floors
+    ctx.globalAlpha = 0.55;
+    for (var s = Math.ceil((x + 3) / (PITCH * 2)) * PITCH * 2; s < x + w - 3; s += PITCH * 2) {
+      ctx.fillRect(s, topY, 1, BH - 3);
+    }
+    ctx.globalAlpha = 1;
+    if (level === 0) {
+      // entrance
+      var cx = x + w / 2;
+      ctx.fillStyle = T['panel-edge'];
+      ctx.fillRect(cx - 12, topY + 5, 24, 3);
+      ctx.fillStyle = T.glass;
+      ctx.fillRect(cx - 7, topY + 8, 14, BH - 11);
+      return;
+    }
+    // windows on the same grid
+    var k0 = Math.ceil((x + 4 - 5.5) / PITCH);
+    for (var k = k0; k * PITCH + 5.5 + 9 <= x + w - 4; k++) {
+      var wx = k * PITCH + 5.5;
+      ctx.fillStyle = hash(level, k) < T.lit ? T['glass-lit'] : T.glass;
+      ctx.fillRect(wx, topY + 7, 9, 13);
+      ctx.fillStyle = T['panel-edge'];
+      ctx.fillRect(wx + 4, topY + 7, 1, 13);
+    }
+  }
+
+  var STARS = [];
+  for (var i = 0; i < 70; i++) STARS.push({ x: hash(i, 1) * W, y: hash(i, 2), r: 0.5 + hash(i, 3) * 0.9, a: 0.35 + hash(i, 4) * 0.65 });
+  var CLOUDS = [];
+  for (var c = 0; c < 6; c++) CLOUDS.push({ x: hash(c, 21) * W, y: 240 + c * 330 + hash(c, 22) * 120, s: 0.8 + hash(c, 23) * 0.7 });
+  var FAR = [
+    { x: -10, w: 62, h: 96 }, { x: 58, w: 40, h: 150 }, { x: 104, w: 70, h: 78 },
+    { x: 196, w: 46, h: 132 }, { x: 248, w: 66, h: 88 }, { x: 318, w: 52, h: 164 }
+  ];
+
+  function draw() {
+    ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+    var g = ctx.createLinearGradient(0, 0, 0, viewH);
+    g.addColorStop(0, T['sky-top']); g.addColorStop(1, T['sky-bottom']);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, viewH);
+
+    // stars (night) and clouds (day); each token is transparent in the other theme
+    ctx.fillStyle = T.star;
+    for (var i = 0; i < STARS.length; i++) {
+      var st = STARS[i];
+      var yy = ((st.y * viewH + camY * 0.04) % viewH + viewH) % viewH;
+      ctx.globalAlpha = st.a;
+      ctx.beginPath(); ctx.arc(st.x, yy, st.r, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = T.cloud;
+    for (var c = 0; c < CLOUDS.length; c++) {
+      var cl = CLOUDS[c];
+      var cy = viewH - GROUND - (cl.y - camY * 0.45);
+      if (cy < -40 || cy > viewH + 40) continue;
+      ctx.beginPath();
+      ctx.ellipse(cl.x, cy, 34 * cl.s, 9 * cl.s, 0, 0, 6.2832);
+      ctx.ellipse(cl.x + 18 * cl.s, cy - 7 * cl.s, 20 * cl.s, 9 * cl.s, 0, 0, 6.2832);
+      ctx.ellipse(cl.x - 16 * cl.s, cy - 4 * cl.s, 16 * cl.s, 7 * cl.s, 0, 0, 6.2832);
+      ctx.fill();
+    }
+
+    var sx = shake ? (Math.random() - 0.5) * shake : 0;
+    ctx.save();
+    ctx.translate(sx, 0);
+
+    // neighbouring blocks in the distance, then the yard
+    var groundY = sy(0);
+    var farBase = viewH - GROUND + camY * 0.6;
+    ctx.fillStyle = T.far;
+    for (var f = 0; f < FAR.length; f++) {
+      var fb = FAR[f];
+      if (farBase - fb.h < viewH) ctx.fillRect(fb.x, farBase - fb.h, fb.w, fb.h + viewH);
+    }
+    if (groundY < viewH) {
+      ctx.fillStyle = T.ground;
+      ctx.fillRect(-20, groundY, W + 40, viewH - groundY + 20);
+    }
+
+    // the building
+    for (var b = 0; b < blocks.length; b++) {
+      var topY = sy((b + 1) * BH);
+      if (topY > viewH || topY + BH < 0) continue;
+      drawFloor(blocks[b].x, blocks[b].w, b, topY);
+    }
+
+    // cut-off pieces
+    for (var d = 0; d < debris.length; d++) {
+      var p = debris[d];
+      ctx.save();
+      ctx.translate(p.x + p.w / 2, sy(p.y + BH / 2));
+      ctx.rotate(p.rot);
+      ctx.fillStyle = T.panel;
+      ctx.fillRect(-p.w / 2, -BH / 2, p.w, BH);
+      ctx.fillStyle = T['panel-edge'];
+      ctx.fillRect(-p.w / 2, BH / 2 - 3, p.w, 3);
+      ctx.restore();
+    }
+
+    // crane and the hanging floor
+    if (cur && state === 'play') {
+      var level = blocks.length;
+      var top = sy(level * BH + 6 + BH);
+      var mid = cur.x + cur.w / 2;
+      ctx.strokeStyle = T.crane; ctx.fillStyle = T.crane;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-10, 18); ctx.lineTo(W + 10, 18);
+      ctx.moveTo(-10, 9); ctx.lineTo(W + 10, 9);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (var z = -10; z < W + 10; z += 18) { ctx.moveTo(z, 18); ctx.lineTo(z + 9, 9); ctx.lineTo(z + 18, 18); }
+      ctx.stroke();
+      ctx.fillRect(mid - 8, 18, 16, 5);
+      ctx.strokeStyle = T.ink; ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(mid - 4, 23); ctx.lineTo(cur.x + Math.min(8, cur.w * 0.2), top);
+      ctx.moveTo(mid + 4, 23); ctx.lineTo(cur.x + cur.w - Math.min(8, cur.w * 0.2), top);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      drawFloor(cur.x, cur.w, level, top);
+    }
+
+    // "Ровно" marks
+    ctx.font = '600 13px "Golos Text", "Segoe UI", system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = T.ink;
+    for (var q = 0; q < floaters.length; q++) {
+      var fl = floaters[q];
+      ctx.globalAlpha = Math.max(0, 1 - fl.t / 0.9);
+      ctx.fillText(fl.text, fl.x, sy(fl.y + fl.t * 26));
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  /* ---------- loop ---------- */
+  function update(dt) {
+    if (state === 'play' && cur) {
+      cur.x += cur.dir * cur.speed * dt;
+      var minX = 6, maxX = W - 6 - cur.w;
+      if (cur.x <= minX) { cur.x = minX; cur.dir = 1; }
+      if (cur.x >= maxX) { cur.x = maxX; cur.dir = -1; }
+    }
+    var hangTop = (blocks.length + 1) * BH + 6;
+    var target = Math.max(0, hangTop - (viewH - GROUND - viewH * 0.4));
+    camY += (target - camY) * Math.min(1, dt * 6);
+
+    for (var d = debris.length - 1; d >= 0; d--) {
+      var p = debris[d];
+      p.vy -= 900 * dt; p.y += p.vy * dt; p.x += p.vx * dt; p.rot += p.vr * dt;
+      if (sy(p.y) > viewH + 80) debris.splice(d, 1);
+    }
+    for (var q = floaters.length - 1; q >= 0; q--) {
+      floaters[q].t += dt;
+      if (floaters[q].t > 0.9) floaters.splice(q, 1);
+    }
+    if (shake) { shake *= Math.pow(0.002, dt); if (shake < 0.3) shake = 0; }
+  }
+
+  var last = 0;
+  function frame(ts) {
+    var dt = Math.min(0.033, (ts - last) / 1000 || 0);
+    last = ts;
+    update(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- boot (keeps a game in progress across page updates) ---------- */
+  function boot(data) {
+    data = data || {};
+    reset();
+    if (Array.isArray(data.blocks) && data.blocks.length > 1) {
+      var ok = data.blocks.every(function (b) { return b && isFinite(b.x) && isFinite(b.w) && b.w > 0; });
+      if (ok) {
+        blocks = data.blocks.map(function (b) { return { x: +b.x, w: +b.w }; });
+        streak = data.streak | 0;
+        relief = Math.max(0, data.relief | 0);
+        lostPending = !!data.lostPending;
+        started = true; elHint.hidden = true;
+        spawn(); paintHud();
+        camY = Math.max(0, (blocks.length + 1) * BH + 6 - (viewH - GROUND - viewH * 0.4));
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  var hot = window.claude && window.claude.hot;
+  try {
+    if (hot && hot.snapshot) hot.snapshot(function () {
+      return state === 'play' ? { blocks: blocks, streak: streak, relief: relief, lostPending: lostPending } : {};
+    });
+  } catch (e) { /* no viewer hook */ }
+  if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
+})();
+</script>
+</body>
+</html>
