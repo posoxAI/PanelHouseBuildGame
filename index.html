@@ -136,6 +136,26 @@
     cursor: pointer;
   }
   .ghost:hover { color: var(--ink); }
+  .lang {
+    display: inline-flex;
+    align-self: center;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .lang button {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] { color: var(--on-accent); background: var(--accent); }
+  .lang button:focus-visible { outline-offset: -2px; }
 
   .stage {
     position: relative;
@@ -239,10 +259,14 @@
 <body>
 <div class="app">
   <header class="bar">
-    <h1>Панелька</h1>
+    <h1 id="title">Панелька</h1>
     <div class="bar-side">
-      <span>Рекорд <b id="best">0</b></span>
+      <span><span id="bestLabel">Рекорд</span> <b id="best">0</b></span>
       <button class="ghost" id="sound" type="button" aria-pressed="true">Звук: вкл</button>
+      <span class="lang" role="group" aria-label="Язык / Language">
+        <button type="button" id="langRu" aria-pressed="true">RU</button>
+        <button type="button" id="langEn" aria-pressed="false">EN</button>
+      </span>
     </div>
   </header>
 
@@ -262,7 +286,7 @@
     </div>
   </div>
 
-  <p class="note">Всё, что свисает с дома, срезается. Каждые три этажа кран ускоряется. Три ровных этажа подряд возвращают часть ширины, а после срезанного куска ещё и сбрасывают скорость на ступень. Высота этажа 2,7 м.</p>
+  <p class="note" id="note">Всё, что свисает с дома, срезается. Каждые три этажа кран ускоряется. Три ровных этажа подряд возвращают часть ширины, а после срезанного куска ещё и сбрасывают скорость на ступень. Высота этажа 2,7 м.</p>
 </div>
 
 <script>
@@ -313,11 +337,45 @@
     try { localStorage.setItem(key, String(value)); } catch (e) { /* storage is optional */ }
   }
 
+  /* ---------- language ---------- */
+  var STR = {
+    ru: {
+      title: 'Панелька', best: 'Рекорд', soundOn: 'Звук: вкл', soundOff: 'Звук: выкл',
+      stage: 'Стройплощадка. Нажмите, чтобы поставить этаж',
+      hint: 'Нажмите на поле или пробел, когда этаж окажется над домом',
+      note: 'Всё, что свисает с дома, срезается. Каждые три этажа кран ускоряется. Три ровных этажа подряд возвращают часть ширины, а после срезанного куска ещё и сбрасывают скорость на ступень. Высота этажа 2,7 м.',
+      m: 'м', speed: 'скорость', again: 'Строить заново',
+      overDone: 'Дом сдан', overMiss: 'Мимо фундамента', newBest: ' · новый рекорд',
+      ranks: ['Котлован', 'Недострой', 'Хрущёвка', 'Девятиэтажка', 'Двенадцатиэтажка', 'Шестнадцатиэтажка', 'Высотка', 'Небоскрёб'],
+      straight: 'Ровно', slower: ' · кран медленнее', held: ' · кран не ускорился'
+    },
+    en: {
+      title: 'Panelka', best: 'Best', soundOn: 'Sound: on', soundOff: 'Sound: off',
+      stage: 'Building site. Press to place a floor',
+      hint: 'Tap the site or press Space when the floor is over the building',
+      note: 'Anything that overhangs the building is cut off. The crane speeds up every three floors. Three straight floors in a row win back some width and, after a cut, take the speed down one step. A floor is 2.7 m tall.',
+      m: 'm', speed: 'speed', again: 'Build again',
+      overDone: 'Building complete', overMiss: 'Missed the foundation', newBest: ' · new best',
+      ranks: ['Foundation pit', 'Unfinished', 'Khrushchyovka', 'Nine-storey block', 'Twelve-storey block', 'Sixteen-storey block', 'High-rise', 'Skyscraper'],
+      straight: 'Straight', slower: ' · crane slows', held: ' · crane holds speed'
+    }
+  };
+  // a saved choice wins; otherwise Russian for anyone who lists it among their browser languages
+  function pickLang() {
+    var saved = load('panelka-lang', '');
+    if (saved === 'ru' || saved === 'en') return saved;
+    var list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+    for (var k = 0; k < list.length; k++) if (String(list[k]).toLowerCase().indexOf('ru') === 0) return 'ru';
+    return 'en';
+  }
+  var lang = pickLang();
+  function tr(key) { return STR[lang][key]; }
+
   /* ---------- sound ---------- */
   var actx = null;
   var soundOn = load('panelka-sound', '1') === '1';
   function paintSound() {
-    btnSound.textContent = soundOn ? 'Звук: вкл' : 'Звук: выкл';
+    btnSound.textContent = soundOn ? tr('soundOn') : tr('soundOff');
     btnSound.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
   }
   paintSound();
@@ -355,23 +413,19 @@
   var viewH = 560, dpr = 1, scale = 1;
 
   function plural(n) {
+    if (lang === 'en') return n === 1 ? 'floor' : 'floors';
     var a = n % 10, b = n % 100;
     if (a === 1 && b !== 11) return 'этаж';
     if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return 'этажа';
     return 'этажей';
   }
   function metres(n) {
-    return (n * 2.7).toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    return (n * 2.7).toLocaleString(lang === 'ru' ? 'ru-RU' : 'en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   }
   function rank(n) {
-    if (n === 0) return 'Котлован';
-    if (n < 5) return 'Недострой';
-    if (n < 9) return 'Хрущёвка';
-    if (n < 12) return 'Девятиэтажка';
-    if (n < 16) return 'Двенадцатиэтажка';
-    if (n < 25) return 'Шестнадцатиэтажка';
-    if (n < 40) return 'Высотка';
-    return 'Небоскрёб';
+    var limits = [1, 5, 9, 12, 16, 25, 40], k = 0;
+    while (k < limits.length && n >= limits[k]) k++;
+    return tr('ranks')[k];
   }
   function score() { return blocks.length - 1; }
   // one speed step per three floors, minus the steps earned back
@@ -380,9 +434,9 @@
   function paintHud() {
     var n = score();
     elFloors.textContent = n;
-    elLabel.textContent = plural(n) + ' · ' + metres(n) + ' м';
+    elLabel.textContent = plural(n) + ' · ' + metres(n) + ' ' + tr('m');
     elBest.textContent = best;
-    elSpeed.textContent = 'скорость ' + (speedLevel() + 1);
+    elSpeed.textContent = tr('speed') + ' ' + (speedLevel() + 1);
   }
 
   function spawn() {
@@ -403,9 +457,41 @@
     blocks = [{ x: (W - BASE_W) / 2, w: BASE_W }];
     debris = []; floaters = [];
     streak = 0; relief = 0; lostPending = false; state = 'play'; shake = 0;
+    lastOver = null;
     elOver.hidden = true;
     spawn();
     paintHud();
+  }
+
+  var lastOver = null;
+  function paintOver() {
+    if (!lastOver) return;
+    var n = lastOver.n;
+    elOverTitle.textContent = n === 0 ? tr('overMiss') : tr('overDone');
+    elOverRank.textContent = rank(n) + (lastOver.record && n > 0 ? tr('newBest') : '');
+    elOverStats.textContent = n + ' ' + plural(n) + ' · ' + metres(n) + ' ' + tr('m');
+  }
+
+  function applyLang() {
+    document.documentElement.lang = lang;
+    document.title = tr('title');
+    document.getElementById('title').textContent = tr('title');
+    document.getElementById('bestLabel').textContent = tr('best');
+    document.getElementById('note').textContent = tr('note');
+    elHint.textContent = tr('hint');
+    btnAgain.textContent = tr('again');
+    document.getElementById('stage').setAttribute('aria-label', tr('stage'));
+    document.getElementById('langRu').setAttribute('aria-pressed', lang === 'ru' ? 'true' : 'false');
+    document.getElementById('langEn').setAttribute('aria-pressed', lang === 'en' ? 'true' : 'false');
+    paintSound();
+    paintOver();
+    if (blocks.length) paintHud();
+  }
+  function setLang(next) {
+    if (next === lang) return;
+    lang = next;
+    save('panelka-lang', lang);
+    applyLang();
   }
 
   function finish() {
@@ -414,9 +500,8 @@
     var n = score();
     var record = n > best;
     if (record) { best = n; save('panelka-best', best); }
-    elOverTitle.textContent = n === 0 ? 'Мимо фундамента' : 'Дом сдан';
-    elOverRank.textContent = rank(n) + (record && n > 0 ? ' · новый рекорд' : '');
-    elOverStats.textContent = n + ' ' + plural(n) + ' · ' + metres(n) + ' м';
+    lastOver = { n: n, record: record };
+    paintOver();
     elOver.hidden = false;
     elHint.hidden = true;
     paintHud();
@@ -457,8 +542,8 @@
         lostPending = false;
         if (speedLevel() > 0) { relief++; slower = true; }
       }
-      var mark = streak > 1 ? 'Ровно ×' + streak : 'Ровно';
-      if (slower) mark += speedLevel() < before ? ' · кран медленнее' : ' · кран не ускорился';
+      var mark = streak > 1 ? tr('straight') + ' ×' + streak : tr('straight');
+      if (slower) mark += speedLevel() < before ? tr('slower') : tr('held');
       floaters.push({ text: mark, x: nx + nw / 2, y: y + BH + 10, t: 0 });
       tone(330 * Math.pow(2, Math.min(streak, 12) / 12), 0.22, 'triangle', 0.11);
     } else {
@@ -497,6 +582,8 @@
     action();
   });
   btnAgain.addEventListener('click', function () { reset(); stage.focus({ preventScroll: true }); });
+  document.getElementById('langRu').addEventListener('click', function () { setLang('ru'); });
+  document.getElementById('langEn').addEventListener('click', function () { setLang('en'); });
   btnSound.addEventListener('click', function () {
     soundOn = !soundOn; save('panelka-sound', soundOn ? '1' : '0'); paintSound();
     if (soundOn) tone(440, 0.12, 'triangle', 0.08);
@@ -656,7 +743,7 @@
       drawFloor(cur.x, cur.w, level, top);
     }
 
-    // "Ровно" marks
+    // "straight" marks
     ctx.font = '600 13px "Golos Text", "Segoe UI", system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = T.ink;
@@ -706,6 +793,7 @@
   function boot(data) {
     data = data || {};
     reset();
+    applyLang();
     if (Array.isArray(data.blocks) && data.blocks.length > 1) {
       var ok = data.blocks.every(function (b) { return b && isFinite(b.x) && isFinite(b.w) && b.w > 0; });
       if (ok) {

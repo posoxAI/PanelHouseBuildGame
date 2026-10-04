@@ -45,6 +45,12 @@
 
 Высота этажа в игре 2,7 м, поэтому рядом со счётом показана высота дома в метрах.
 
+## Язык
+
+Интерфейс на русском и английском. Русский включается сам, если он есть в списке языков браузера, иначе игра открывается на английском. Переключатель RU/EN запоминает выбор.
+
+*The interface is in Russian and English. It opens in Russian when Russian is among the browser's languages and in English otherwise; the RU/EN switch remembers your choice.*
+
 ## Как запустить
 
 Вся игра лежит в одном файле `index.html`. Сборка и зависимости не нужны.
