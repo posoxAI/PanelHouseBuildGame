@@ -4,6 +4,13 @@
 
 *A one-button browser game: a tower crane carries the floors of a panel apartment block, and you stack them as straight as you can.*
 
+<p>
+  <img src="screenshots/day.png" width="300" alt="Панелька днём: дом в десять этажей, кран подвозит следующий этаж">
+  <img src="screenshots/night.png" width="300" alt="Та же стройка в тёмной теме: ночь, в окнах горит свет">
+</p>
+
+Слева светлая тема, справа тёмная.
+
 ## Как играть
 
 Нажмите на поле или пробел (Enter тоже работает), когда этаж окажется над домом.
