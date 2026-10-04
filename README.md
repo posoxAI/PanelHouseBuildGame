@@ -4,6 +4,8 @@
 
 *A one-button browser game: a tower crane carries the floors of a panel apartment block, and you stack them as straight as you can.*
 
+**[Играть в браузере](https://posoxai.github.io/PanelHouseBuildGame/)**
+
 <p>
   <img src="screenshots/day.png" width="300" alt="Панелька днём: дом в десять этажей, кран подвозит следующий этаж">
   <img src="screenshots/night.png" width="300" alt="Та же стройка в тёмной теме: ночь, в окнах горит свет">
@@ -48,7 +50,7 @@
 Вся игра лежит в одном файле `index.html`. Сборка и зависимости не нужны.
 
 - Локально: откройте `index.html` в браузере.
-- По ссылке: включите GitHub Pages для этого репозитория, и игра откроется по адресу страницы.
+- По ссылке: игра опубликована через GitHub Pages по адресу https://posoxai.github.io/PanelHouseBuildGame/. Каждый коммит в `main` обновляет её автоматически.
 
 Шрифты загружаются с Google Fonts. Без сети игра работает на системных шрифтах.
 
