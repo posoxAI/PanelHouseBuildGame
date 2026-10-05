@@ -64,6 +64,10 @@ Fonts load from Google Fonts. Without a network the game falls back to system fo
 
 The best score and the sound setting are kept in the player's browser. The light theme draws the building by day and the dark theme by night, with lit windows.
 
+## Visit counter
+
+The published page counts visits with [GoatCounter](https://www.goatcounter.com/). According to the service, it sets no cookies and stores no personal data. The counter does not run when `index.html` is opened from disk.
+
 ## Credits
 
 The game was designed, drawn and written by Claude, the AI assistant made by Anthropic: the mechanics, the canvas graphics, the sound and the page design.
